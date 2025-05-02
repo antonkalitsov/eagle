@@ -13,7 +13,7 @@ def get_db_connection():
     return mysql.connector.connect(
         host='localhost',
         user='root',
-        password='your_password',  # Парола за базата данни
+        password='88551254_toni',  # Парола за базата данни
         database='apprestaurant'  # Име на базата данни
     )
 
@@ -234,15 +234,15 @@ def admin():
     start_date = None
     end_date = None
     employee_revenue = None
-
-    # Извличане на критерии за бонуси
+    
+    # Fetch bonus criteria
     cursor.execute("SELECT * FROM bonus_criteria LIMIT 1")
     bonus_criteria = cursor.fetchone()
     orders_required = bonus_criteria['orders_required']
     bonus_amount = bonus_criteria['bonus_amount']
 
     if request.method == 'POST':
-        # Обработка на редактиране на критерии за бонуси
+        # Handle editing bonus criteria
         if 'edit_bonus_criteria' in request.form:
             orders_required = int(request.form['orders_required'])
             bonus_amount = int(request.form['bonus_amount'])
@@ -252,8 +252,170 @@ def admin():
             """, (orders_required, bonus_amount))
             conn.commit()
 
+        # Handle adding a new restaurant
+        elif 'add_restaurant' in request.form:
+            restaurant_name = request.form['restaurant_name']
+            restaurant_address = request.form['restaurant_address']
+            cursor.execute("""
+                INSERT INTO restaurants (name, address) VALUES (%s, %s)
+            """, (restaurant_name, restaurant_address))
+            conn.commit()
+
+        # Handle editing a restaurant
+        elif 'edit_restaurant' in request.form:
+            restaurant_id = request.form['restaurant_id']
+            restaurant_name = request.form['restaurant_name']
+            restaurant_address = request.form['restaurant_address']
+            cursor.execute("""
+                UPDATE restaurants
+                SET name = %s, address = %s
+                WHERE id = %s
+            """, (restaurant_name, restaurant_address, restaurant_id))
+            conn.commit()
+
+        # Handle deleting a restaurant
+        elif 'delete_restaurant' in request.form:
+            restaurant_id = request.form['restaurant_id']
+            cursor.execute("DELETE FROM restaurants WHERE id = %s", (restaurant_id,))
+            conn.commit()
+
+        # Handle adding a new menu item
+        elif 'add_menu_item' in request.form:
+            restaurant_id = request.form['restaurant_id']
+            name = request.form['name']
+            price = request.form['price']
+            category = request.form['category']
+            cursor.execute("""
+                INSERT INTO menu (restaurant_id, name, price, category)
+                VALUES (%s, %s, %s, %s)
+            """, (restaurant_id, name, price, category))
+            conn.commit()
+
+        # Handle editing a menu item
+        elif 'edit_menu_item' in request.form:
+            menu_item_id = request.form['menu_item_id']
+            name = request.form['name']
+            price = request.form['price']
+            category = request.form['category']
+            cursor.execute("""
+                UPDATE menu
+                SET name = %s, price = %s, category = %s
+                WHERE id = %s
+            """, (name, price, category, menu_item_id))
+            conn.commit()
+
+        # Handle deleting a menu item
+        elif 'delete_menu_item' in request.form:
+            menu_item_id = request.form['menu_item_id']
+            cursor.execute("DELETE FROM menu WHERE id = %s", (menu_item_id,))
+            conn.commit()
+
+        # Handle employee revenue query
+        elif 'employee_revenue_query' in request.form:
+            start_date = request.form['start_date']
+            end_date = request.form['end_date']
+            cursor.execute(f"""
+                SELECT u.username, COUNT(f.id) AS completed_orders,
+                       SUM(o.total_price) AS total_revenue,
+                       FLOOR(COUNT(f.id) / {orders_required}) * {bonus_amount} AS bonus
+                FROM finished_orders f
+                JOIN orders o ON f.order_id = o.id
+                JOIN users u ON f.employee_id = u.id
+                WHERE f.finished_at BETWEEN %s AND %s
+                AND u.role = 'employee'
+                GROUP BY u.username
+            """, (start_date, end_date))
+            employee_revenue = cursor.fetchall()
+
+        # Handle company revenue query
+        elif 'revenue_query' in request.form:
+            start_date = request.form['start_date']
+            end_date = request.form['end_date']
+            cursor.execute(
+                "SELECT SUM(total_price) AS revenue FROM orders WHERE created_at BETWEEN %s AND %s",
+                (start_date, end_date)
+            )
+            result = cursor.fetchone()
+            revenue = result['revenue'] if result['revenue'] else 0
+
+        # Handle employee revenue query
+        elif 'employee_revenue_query' in request.form:
+            start_date = request.form['start_date']
+            end_date = request.form['end_date']
+            cursor.execute("""
+                SELECT f.delivery_date, e.username, SUM(o.total_price) AS employee_revenue
+                FROM finished_orders f
+                JOIN orders o ON f.order_id = o.id
+                JOIN employees e ON f.employee_id = e.id
+                WHERE f.delivery_date BETWEEN %s AND %s
+                GROUP BY e.username
+            """, (start_date, end_date))
+            employee_revenue = cursor.fetchall()
+
+    # Fetch restaurants and their menus
+    cursor.execute("SELECT * FROM restaurants")
+    restaurants = cursor.fetchall()
+    for restaurant in restaurants:
+        cursor.execute("SELECT * FROM menu WHERE restaurant_id = %s", (restaurant['id'],))
+        restaurant['menu'] = cursor.fetchall()
+
+    # Fetch menu items for display
+    edit_id = request.args.get('edit', type=int)
+    cursor.execute("SELECT * FROM menu")
+    items = cursor.fetchall()
+
     conn.close()
-    return render_template('admin.html', orders_required=orders_required, bonus_amount=bonus_amount)
+
+    return render_template(
+        'admin.html',
+        restaurants=restaurants,
+        items=items,
+        username=session['username'],
+        edit_id=edit_id,
+        revenue=revenue,
+        start_date=start_date,
+        end_date=end_date,
+        employee_revenue=employee_revenue,
+        orders_required=orders_required,
+        bonus_amount=bonus_amount
+    )
+
+@app.route("/accept_order/<int:order_id>", methods=["POST"])
+def accept_order(order_id):
+    if session.get("role") != "employee":
+        return redirect(url_for("login"))
+
+    employee_id = session.get("user_id")
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Проверка дали вече е приета
+    cursor.execute("SELECT accepted_by FROM orders WHERE id = %s", (order_id,))
+    result = cursor.fetchone()
+    if result and result[0] is not None:
+        conn.close()
+        return redirect(url_for("employee_dashboard"))
+
+    # Приемане на поръчката
+    cursor.execute("UPDATE orders SET accepted_by = %s WHERE id = %s", (employee_id, order_id))
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+    return redirect(url_for("employee_dashboard"))
+
+@app.route('/delete_menu_item/<int:item_id>', methods=['POST'])
+def delete_menu_item(item_id):
+    if 'role' not in session or session['role'] != 'admin':
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM menu WHERE id = %s", (item_id,))
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for('admin'))
 
 # Изход от системата
 @app.route('/logout')
