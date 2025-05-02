@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='menu.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Menu</h1>
+        <a href="{{ url_for('logout') }}" class="logout-button" style="display: inline-block; margin-top: 20px; background-color: red; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+            Logout
+        </a>
+
+        <!-- Category Filter -->
+        <form method="GET" action="{{ url_for('display_menu') }}">
+            <label for="category">Filter by Category:</label>
+            <select name="category" id="category" onchange="this.form.submit()">
+                <option value="">All Categories</option>
+                {% for category in categories %}
+                <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>
+                    {{ category }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
+
+        <!-- Display Restaurants and Their Menus -->
+        {% for restaurant in restaurants %}
+        <div class="restaurant">
+            <h2>{{ restaurant.name }}</h2>
+            <p>{{ restaurant.address }}</p>
+            <h3>Menu</h3>
+            <form method="POST" action="{{ url_for('display_menu') }}">
+                <input type="hidden" name="restaurant_id" value="{{ restaurant.id }}">
+                <ul>
+                    {% for item in restaurant.menu %}
+                    <li>
+                        <h4>{{ item.name }}</h4>
+                        <p>Price: ${{ item.price }}</p>
+                        <p>Category: {{ item.category }}</p>
+                        <label for="quantity_{{ item.name }}">Quantity:</label>
+                        <input type="number" name="quantity_{{ item.name }}" id="quantity_{{ item.name }}" min="0" value="0">
+                    </li>
+                    {% endfor %}
+                </ul>
+                <!-- Client Address Input -->
+                <label for="client_address">Delivery Address:</label>
+                <input type="text" name="client_address" id="client_address" placeholder="Enter your address" required>
+                <button type="submit">Place Order</button>
+            </form>
+        </div>
+        {% endfor %}
+
+        <!-- Display Total Price -->
+        {% if total is not none %}
+        <div class="total-price">
+            <h3>Total Price: ${{ total }}</h3>
+        </div>
+        {% endif %}
+        
+    </div>
+</body>
+</html>

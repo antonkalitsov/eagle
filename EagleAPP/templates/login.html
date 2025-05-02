@@ -1,0 +1,51 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f0e3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .login-form {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <form class="login-form" action="{{ url_for('login') }}" method="POST">
+        <h2>Login</h2>
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <select name="role" required>
+            <option value="" disabled selected>Select role</option>
+            <option value="client">Client</option>
+            <option value="employee">Employee</option>
+            <option value="admin">Admin</option>
+        </select>
+        <input type="submit" value="Login" style="background-color: #4CAF50; color: white; border: none; padding: 10px 15px; margin-top: 10px; width: 100%; border-radius: 5px; cursor: pointer;">
+        <a href="{{ url_for('register') }}">
+            <input type="button" value="Register" style="background-color: #bf7220; color: white; border: none; padding: 10px 15px; margin-top: 10px; width: 100%; border-radius: 5px; cursor: pointer;">
+        </a>
+    </form>
+</body>
+</html>

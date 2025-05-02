@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='employee.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome, {{ username }}</h2>
+
+        <h3>Unaccepted Orders</h3>
+        <div class="order-list">
+            {% for order in unaccepted_orders %}
+            <div class="order-card">
+                <h4>Order #{{ order.id }}</h4>
+                <p>Total: {{ order.total_price }} BGN</p>
+                <p>Restaurant Address: {{ order.restaurant_address }}</p>
+                <p>Client Address: {{ order.client_address }}</p>
+                <form action="{{ url_for('accept_order', order_id=order.id) }}" method="post">
+                    <button type="submit" class="accept-btn">Accept</button>
+                </form>
+            </div>
+            {% else %}
+            <p>No unaccepted orders</p>
+            {% endfor %}
+        </div>
+
+        <h3>My Accepted Orders</h3>
+        <div class="order-list">
+            {% for order in my_orders %}
+            <div class="order-card">
+                <h4>Order #{{ order.id }}</h4>
+                <p>Total: {{ order.total_price }} BGN</p>
+                <p>Restaurant Address: {{ order.restaurant_address }}</p>
+                <p>Client Address: {{ order.client_address }}</p>
+                <form action="{{ url_for('complete_order') }}" method="post">
+                    <input type="hidden" name="order_id" value="{{ order.id }}">
+                    <button type="submit" class="complete-btn">Mark as Delivered</button>
+                </form>
+            </div>
+            {% else %}
+            <p>You have no accepted orders</p>
+            {% endfor %}
+        </div>
+
+        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+    </div>
+</body>
+</html>

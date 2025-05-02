@@ -1,0 +1,125 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: url('https://images.unsplash.com/photo-1600891964599-f61ba0e24092') no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+}
+
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 30px;
+    background: #dfefff;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    color: #000;
+}
+
+h2, h3 {
+    text-align: center;
+    color: #003366;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    background-color: #fefefe;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 8px;
+    color: #000;
+}
+
+input, button {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+    border: none;
+}
+
+.add-btn {
+    background-color: #1e90ff;
+    color: white;
+}
+
+.delete-btn {
+    background-color: #c0392b;
+    color: white;
+}
+
+.logout-link {
+    display: inline-block;
+    text-decoration: none;
+    background-color: #c0392b;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    transition: background-color 0.3s;
+}
+
+.logout-link:hover {
+    background-color: #e74c3c;
+}
+.revenue-form {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    width: fit-content;
+    border-radius: 8px;
+}
+
+.revenue-form input[type="date"],
+.revenue-form button {
+    margin: 5px;
+    padding: 6px;
+    font-size: 16px;
+}
+.revenue-form button {
+    background-color: #218538;
+    color: white;
+}
+.revenue-result {
+    margin-top: 10px;
+    font-weight: bold;
+}
+.revenue-result span {
+    color: #c0392b;
+}
+.money {
+    font-weight: bold;
+    color: #218538;
+}
+
+/* Style for Employee Revenue Table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tr:hover {
+    background-color: #f1f1f1;
+}

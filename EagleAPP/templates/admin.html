@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+    <script>
+        // JavaScript function to toggle the visibility of edit forms
+        function toggleEditForm(formId) {
+            const form = document.getElementById(formId);
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome, {{ username }}</h2>
+
+        <!-- Add New Restaurant -->
+        <h3>Add New Restaurant</h3>
+        <form method="POST" action="{{ url_for('admin') }}">
+            <input type="hidden" name="add_restaurant" value="1">
+            <input type="text" name="restaurant_name" placeholder="Restaurant Name" required>
+            <input type="text" name="restaurant_address" placeholder="Restaurant Address" required>
+            <button type="submit">Add Restaurant</button>
+        </form>
+
+        <!-- Display Restaurants and Menus -->
+        <h3>Restaurants</h3>
+        {% for restaurant in restaurants %}
+        <div class="restaurant">
+            <h4>{{ restaurant.name }} ({{ restaurant.address }})</h4>
+
+            <!-- Edit Restaurant -->
+            <button onclick="toggleEditForm('edit-restaurant-{{ restaurant.id }}')">Edit</button>
+            <form id="edit-restaurant-{{ restaurant.id }}" method="POST" action="{{ url_for('admin') }}" style="display: none; margin-top: 10px;">
+                <input type="hidden" name="edit_restaurant" value="1">
+                <input type="hidden" name="restaurant_id" value="{{ restaurant.id }}">
+                <input type="text" name="restaurant_name" value="{{ restaurant.name }}" required>
+                <input type="text" name="restaurant_address" value="{{ restaurant.address }}" required>
+                <button type="submit">Save</button>
+            </form>
+
+            <!-- Delete Restaurant -->
+            <form method="POST" action="{{ url_for('admin') }}" style="display: inline-block;">
+                <input type="hidden" name="delete_restaurant" value="1">
+                <input type="hidden" name="restaurant_id" value="{{ restaurant.id }}">
+                <button type="submit" style="background-color: red; color: white;">Delete</button>
+            </form>
+
+            <!-- Add Menu Item -->
+            <h5>Add Menu Item</h5>
+            <form method="POST" action="{{ url_for('admin') }}">
+                <input type="hidden" name="add_menu_item" value="1">
+                <input type="hidden" name="restaurant_id" value="{{ restaurant.id }}">
+                <input type="text" name="name" placeholder="Menu Item Name" required>
+                <input type="number" step="0.01" name="price" placeholder="Price" required>
+                <input type="text" name="category" placeholder="Category" required>
+                <button type="submit">Add Menu Item</button>
+            </form>
+
+            <!-- Display Menu Items -->
+            <h5>Menu</h5>
+            <ul>
+                {% for item in restaurant.menu %}
+                <li>
+                    {{ item.name }} - ${{ item.price }} ({{ item.category }})
+                    <!-- Edit Menu Item -->
+                    <button onclick="toggleEditForm('edit-menu-item-{{ item.id }}')">Edit</button>
+                    <form id="edit-menu-item-{{ item.id }}" method="POST" action="{{ url_for('admin') }}" style="display: none; margin-top: 10px;">
+                        <input type="hidden" name="edit_id" value="{{ item.id }}">
+                        <input type="text" name="edit_name" value="{{ item.name }}" required>
+                        <input type="number" step="0.01" name="edit_price" value="{{ item.price }}" required>
+                        <input type="text" name="edit_category" value="{{ item.category }}" required>
+                        <button type="submit">Save</button>
+                    </form>
+
+                    <!-- Delete Menu Item -->
+                    <form method="POST" action="{{ url_for('delete_item', item_id=item.id) }}" style="display: inline-block;">
+                        <button type="submit" style="background-color: red; color: white;">Delete</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+
+        <h3>Company Revenue Report</h3>
+        <form method="POST" class="revenue-form">
+            <input type="hidden" name="revenue_query" value="1">
+            <label>From: <input type="date" name="start_date" required></label>
+            <label>To: <input type="date" name="end_date" required></label>
+            <button type="submit" class="revenue-form button">Get Revenue</button>
+        </form>
+
+        {% if revenue is not none %}
+        <div class="revenue-result">
+            <p>Total Revenue from {{ start_date }} to {{ end_date }}: <strong class="money">{{ revenue }} BGN</strong></p>
+        </div>
+        {% endif %}
+
+
+        <h3>Employee Revenue Report</h3>
+        <form method="POST" action="{{ url_for('admin') }}">
+            <input type="hidden" name="employee_revenue_query" value="1">
+            <label for="start_date">From:</label>
+            <input type="date" name="start_date" required>
+            <label for="end_date">To:</label>
+            <input type="date" name="end_date" required>
+            <button type="submit">Get Employee Revenue</button>
+        </form>
+        <h3>Bonus Criteria</h3>
+        <form method="POST" action="{{ url_for('admin') }}">
+            <input type="hidden" name="edit_bonus_criteria" value="1">
+            <label for="orders_required">Orders Required for Bonus:</label>
+            <input type="number" name="orders_required" id="orders_required" value="{{ orders_required }}" required>
+            <label for="bonus_amount">Bonus Amount (BGN):</label>
+            <input type="number" name="bonus_amount" id="bonus_amount" value="{{ bonus_amount }}" required>
+            <button type="submit">Update Bonus Criteria</button>
+        </form>
+        {% if employee_revenue %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Completed Orders</th>
+                    <th>Total Revenue</th>
+                    <th>Bonus Earned</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in employee_revenue %}
+                <tr>
+                    <td>{{ entry.username }}</td>
+                    <td>{{ entry.completed_orders }}</td>
+                    <td>{{ entry.total_revenue }} BGN</td>
+                    <td>{{ entry.bonus }} BGN</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+
+        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+    </div>
+    
+</body>
+</html>
