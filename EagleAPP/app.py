@@ -13,7 +13,7 @@ def get_db_connection():
     return mysql.connector.connect(
         host='localhost',
         user='root',
-        password='88551254_toni',  # Парола за базата данни
+        password='YOUR_PASSWORD',  # Парола за базата данни
         database='apprestaurant'  # Име на базата данни
     )
 
