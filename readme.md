@@ -1,5 +1,3 @@
----
-
 ### **README: Instructions to Set Up and Run the Application**
 
 #### **1. Prerequisites**
