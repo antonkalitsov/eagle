@@ -13,7 +13,7 @@ def get_db_connection():
     return mysql.connector.connect(
         host='localhost',
         user='root',
-        password='your_pasword',  # Парола за базата данни
+        password='88551254_toni',  # Парола за базата данни
         database='apprestaurant'  # Име на базата данни
     )
 
@@ -114,7 +114,7 @@ def home():
     return redirect(url_for('login'))
 
 # Страница за служител
-@app.route('/employee')
+@app.route('/employee', methods=['GET', 'POST'])
 def employee_dashboard():
     if 'role' not in session or session['role'] != 'employee':
         return redirect(url_for('login'))
@@ -124,7 +124,7 @@ def employee_dashboard():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Извличане на неприети поръчки
+    # Fetch unaccepted orders (accepted_by is NULL)
     cursor.execute("""
         SELECT o.*, r.address AS restaurant_address, o.client_address
         FROM orders o
@@ -134,7 +134,7 @@ def employee_dashboard():
     """)
     unaccepted_orders = cursor.fetchall()
 
-    # Извличане на приетите поръчки на служителя
+    # Fetch employee's accepted orders
     cursor.execute("""
         SELECT o.*, r.address AS restaurant_address, o.client_address
         FROM orders o
@@ -144,12 +144,24 @@ def employee_dashboard():
     """, (employee_id,))
     my_orders = cursor.fetchall()
 
+    # Fetch total completed orders and bonuses for the employee
+    cursor.execute("""
+        SELECT COUNT(f.id) AS completed_orders,
+               FLOOR(COUNT(f.id) / (SELECT orders_required FROM bonus_criteria LIMIT 1)) *
+               (SELECT bonus_amount FROM bonus_criteria LIMIT 1) AS total_bonus
+        FROM finished_orders f
+        WHERE f.employee_id = %s
+    """, (employee_id,))
+    stats = cursor.fetchone()
+
     conn.close()
 
     return render_template('employee.html',
                            unaccepted_orders=unaccepted_orders,
                            my_orders=my_orders,
-                           username=session.get('username'))
+                           username=session.get('username'),
+                           completed_orders=stats['completed_orders'],
+                           total_bonus=stats['total_bonus'])
 
 # Завършване на поръчка
 @app.route('/complete_order', methods=['POST'])
