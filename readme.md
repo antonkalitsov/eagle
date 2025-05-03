@@ -1,5 +1,3 @@
-Here is the content for a `readme.txt` file with instructions on how to set up and run the application on a new PC:
-
 ---
 
 ### **README: Instructions to Set Up and Run the Application**
