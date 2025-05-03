@@ -4,10 +4,17 @@
     <meta charset="UTF-8">
     <title>Employee Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='employee.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 </head>
 <body>
     <div class="container">
         <h2>Welcome, {{ username }}</h2>
+
+        <!-- Display Completed Orders and Bonuses -->
+        <div class="stats">
+            <p><strong>Completed Orders:</strong> {{ completed_orders }}</p>
+            <p><strong>Total Bonus Earned:</strong> {{ total_bonus }} BGN</p>
+        </div>
 
         <h3>Unaccepted Orders</h3>
         <div class="order-list">
