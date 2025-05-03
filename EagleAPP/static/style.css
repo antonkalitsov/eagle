@@ -31,3 +31,20 @@ a {
 a:hover {
     background-color: #e67e22;
 }
+
+.logout-link {
+    display: inline-block;
+    text-decoration: none;
+    background-color: #c0392b;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    transition: background-color 0.3s;
+}
+
+.logout-link:hover {
+    background-color: #e74c3c;
+}

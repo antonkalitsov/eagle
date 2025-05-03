@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
     <script>
         // JavaScript function to toggle the visibility of edit forms
         function toggleEditForm(formId) {
@@ -45,7 +46,7 @@
             <form method="POST" action="{{ url_for('admin') }}" style="display: inline-block;">
                 <input type="hidden" name="delete_restaurant" value="1">
                 <input type="hidden" name="restaurant_id" value="{{ restaurant.id }}">
-                <button type="submit" style="background-color: red; color: white;">Delete</button>
+                <button type="submit" class="revenue-form button" style="background-color: red; color: white;">Delete</button>
             </form>
 
             <!-- Add Menu Item -->
@@ -77,7 +78,7 @@
 
                     <!-- Delete Menu Item -->
                     <form method="POST" action="{{ url_for('delete_menu_item', item_id=item.id) }}" style="display: inline-block;">
-                        <button type="submit" style="background-color: red; color: white;">Delete</button>
+                        <button type="submit" class="delete" style="background-color: red; color: white;">Delete</button>
                     </form>
                 </li>
                 {% endfor %}
