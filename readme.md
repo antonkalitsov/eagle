@@ -103,8 +103,8 @@ Before running the application, ensure the following software is installed on yo
 
 
 
-#### **9. Architecture and Database diagram **
-****![image](https://github.com/user-attachments/assets/a47cdb0c-fc80-4d5e-b2ba-3110d0b19105)
+#### 9. Architecture and Database diagram 
+![image](https://github.com/user-attachments/assets/a47cdb0c-fc80-4d5e-b2ba-3110d0b19105)
 ![image](https://github.com/user-attachments/assets/85e1d82f-158b-4cd1-b638-37c8ae598676)
 
 
